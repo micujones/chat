@@ -7,6 +7,8 @@ import {
     ImageBackground,
     TextInput,
     TouchableOpacity,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 
 const image = '../assets/background-image.png';
@@ -21,7 +23,7 @@ const Start = ({ navigation }) => {
                 resizeMode="cover"
                 style={styles.backgroundImage}
             >
-                <Text style={styles.title}>Chat!</Text>
+                <Text style={styles.title}>Chat</Text>
                 <View style={styles.inputSection}>
                     {/* <Image source={require(icon)} style={{ fill: 'black' }} /> */}
                     <TextInput
@@ -39,6 +41,7 @@ const Start = ({ navigation }) => {
                             style={[styles.normalText, { opacity: 100 }]}
                             value="Choose Background Color:"
                         />
+                        {/* Buttons for selecting background colors */}
                         <View style={{ flexDirection: 'row', gap: 12 }}>
                             <TouchableOpacity
                                 style={[
@@ -75,6 +78,13 @@ const Start = ({ navigation }) => {
                         <Text style={styles.buttonText}>Start Chatting</Text>
                     </TouchableOpacity>
                 </View>
+                {/* Makes space for the keyboard when user is typing */}
+                {Platform.OS === 'android' ? (
+                    <KeyboardAvoidingView behavior="height" />
+                ) : null}
+                {Platform.OS === 'ios' ? (
+                    <KeyboardAvoidingView behavior="padding" />
+                ) : null}
             </ImageBackground>
         </View>
     );
