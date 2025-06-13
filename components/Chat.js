@@ -9,13 +9,13 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Chat = ({ route, navigation }) => {
-    const { name } = route.params;
+    const { name, bgColor } = route.params;
     const [messages, setMessages] = useState([]);
 
-    // Sends first message
     useEffect(() => {
         navigation.setOptions({ title: name });
 
+        // Sends first message
         setMessages([
             {
                 _id: 1,
@@ -29,7 +29,7 @@ const Chat = ({ route, navigation }) => {
             },
             {
                 _id: 2,
-                text: 'This is a system message',
+                text: 'Welcome to the chat.',
                 createdAt: new Date(),
                 system: true,
             },
@@ -59,7 +59,6 @@ const Chat = ({ route, navigation }) => {
             <InputToolbar
                 {...props}
                 containerStyle={{
-                    marginTop: 10,
                     paddingLeft: 10,
                     paddingRight: 10,
                 }}
@@ -78,7 +77,7 @@ const Chat = ({ route, navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: bgColor }]}>
             <KeyboardAvoidingView
                 // Makes space for the keyboard when user is typing
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

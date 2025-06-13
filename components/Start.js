@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     StyleSheet,
     View,
@@ -16,6 +16,7 @@ const image = '../assets/background-image.png';
 
 const Start = ({ navigation }) => {
     const [name, setName] = useState('');
+    const [bgColor, setBgColor] = useState('#fff');
 
     const editName = (input) => {
         return input.trim();
@@ -53,24 +54,28 @@ const Start = ({ navigation }) => {
                                     styles.circle,
                                     { backgroundColor: '#090C08' },
                                 ]}
+                                onPress={() => setBgColor('#090C08')}
                             ></TouchableOpacity>
                             <TouchableOpacity
                                 style={[
                                     styles.circle,
                                     { backgroundColor: '#474056' },
                                 ]}
+                                onPress={() => setBgColor('#474056')}
                             ></TouchableOpacity>
                             <TouchableOpacity
                                 style={[
                                     styles.circle,
                                     { backgroundColor: '#8A95A5' },
                                 ]}
+                                onPress={() => setBgColor('#8A95A5')}
                             ></TouchableOpacity>
                             <TouchableOpacity
                                 style={[
                                     styles.circle,
                                     { backgroundColor: '#B9C6AE' },
                                 ]}
+                                onPress={() => setBgColor('#B9C6AE')}
                             ></TouchableOpacity>
                         </View>
                     </View>
@@ -79,6 +84,7 @@ const Start = ({ navigation }) => {
                         onPress={() =>
                             navigation.navigate('Chat', {
                                 name: editName(name),
+                                bgColor: bgColor,
                             })
                         }
                     >
@@ -132,7 +138,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     chooseBackgroundColor: {
-        justifyContent: 'flex-start',
+        alignItems: 'center',
         width: '88%',
         gap: 12,
     },
