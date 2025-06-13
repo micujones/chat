@@ -16,6 +16,11 @@ const image = '../assets/background-image.png';
 
 const Start = ({ navigation }) => {
     const [name, setName] = useState('');
+
+    const editName = (input) => {
+        return input.trim();
+    };
+
     return (
         <View style={styles.container}>
             <ImageBackground
@@ -72,7 +77,9 @@ const Start = ({ navigation }) => {
                     <TouchableOpacity
                         style={[styles.button, styles.bar]}
                         onPress={() =>
-                            navigation.navigate('Chat', { name: name })
+                            navigation.navigate('Chat', {
+                                name: editName(name),
+                            })
                         }
                     >
                         <Text style={styles.buttonText}>Start Chatting</Text>
@@ -96,9 +103,8 @@ const styles = StyleSheet.create({
     },
     backgroundImage: {
         flex: 1,
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         alignItems: 'center',
-        paddingBottom: 30,
     },
     title: {
         fontSize: 45,

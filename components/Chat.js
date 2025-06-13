@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native';
-import { Bubble, GiftedChat } from 'react-native-gifted-chat';
+import {
+    Bubble,
+    GiftedChat,
+    InputToolbar,
+    Send,
+} from 'react-native-gifted-chat';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const Chat = ({ route, navigation }) => {
     const { name } = route.params;
@@ -13,7 +19,7 @@ const Chat = ({ route, navigation }) => {
         setMessages([
             {
                 _id: 1,
-                text: 'Hello developer',
+                text: `Hello ${name}!`,
                 createdAt: new Date(),
                 user: {
                     _id: 2,
@@ -48,23 +54,45 @@ const Chat = ({ route, navigation }) => {
         );
     };
 
+    const renderInputToolBar = (props) => {
+        return (
+            <InputToolbar
+                {...props}
+                containerStyle={{
+                    marginTop: 10,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                }}
+            />
+        );
+    };
+
+    const renderSend = (props) => {
+        return (
+            <Send {...props}>
+                <View style={{ marginBottom: 10 }}>
+                    <Icon name="send" size={24} color="#0075FD" />
+                </View>
+            </Send>
+        );
+    };
+
     return (
         <View style={styles.container}>
+            <KeyboardAvoidingView
+                // Makes space for the keyboard when user is typing
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            ></KeyboardAvoidingView>
             <GiftedChat
                 messages={messages}
                 onSend={(messages) => onSend(messages)}
                 renderBubble={renderBubble}
+                renderInputToolbar={renderInputToolBar}
+                renderSend={renderSend}
                 user={{
                     _id: 1,
                 }}
             />
-            {/* Makes space for the keyboard when user is typing */}
-            {Platform.OS === 'android' ? (
-                <KeyboardAvoidingView behavior="height" />
-            ) : null}
-            {Platform.OS === 'ios' ? (
-                <KeyboardAvoidingView behavior="padding" />
-            ) : null}
         </View>
     );
 };
@@ -72,9 +100,6 @@ const Chat = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // paddingBottom: 30,
-        // justifyContent: 'center',
-        // alignItems: 'center',
     },
 });
 
