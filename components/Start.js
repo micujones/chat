@@ -26,22 +26,10 @@ const Start = ({ navigation }) => {
         return input.trim();
     };
 
-    /*
-    const signInUser = () => {
-        signInAnonymously(auth)
-        .then(result => {
-            navigation.navigate("ShoppingLists", {userID: result.user.uid });
-            Alert.alert("Signed in Successfully!");
-        })
-        .catch((error) => {
-            Alert.alert("Unable to sign in, try later again.");
-        })
-    }
-    */
-
     const signInUser = () => {
         signInAnonymously(auth)
             .then((result) => {
+                Alert.alert('Sign in successful!');
                 navigation.navigate('Chat', {
                     userID: result.user.uid,
                     name: validateName(name),

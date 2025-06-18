@@ -1,8 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-// Firebase
-import { db } from './src/firebaseConfig';
-
 // Navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
