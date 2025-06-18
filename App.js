@@ -1,15 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 
-// import react Navigation
+// Firebase
+import { db } from './src/firebaseConfig';
+
+// Navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+const Stack = createNativeStackNavigator();
+
+// Components
 import Start from './components/Start';
 import Chat from './components/Chat';
-
-// Create navigator
-const Stack = createNativeStackNavigator();
 
 const App = () => {
     return (

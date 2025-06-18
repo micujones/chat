@@ -8,38 +8,49 @@ import {
 } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+// Firebase
+import {
+    addDoc,
+    collection,
+    onSnapshot,
+    orderBy,
+    query,
+} from 'firebase/firestore';
+import { db } from '../src/firebaseConfig';
+
 const Chat = ({ route, navigation }) => {
-    const { name, bgColor } = route.params;
+    const { userID, name, bgColor } = route.params;
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
         navigation.setOptions({ title: name });
 
-        // Sends first message
-        setMessages([
-            {
-                _id: 1,
-                text: `Hello ${name}!`,
-                createdAt: new Date(),
-                user: {
-                    _id: 2,
-                    name: 'React Native',
-                    avatar: 'https://www.usatoday.com/gcdn/authoring/authoring-images/2025/05/09/USAT/83538946007-2211456576.jpg?crop=2281,2280,x791,y0', // Replace
-                },
-            },
-            {
-                _id: 2,
-                text: 'Welcome to the chat.',
-                createdAt: new Date(),
-                system: true,
-            },
-        ]);
+        const q = query(
+            collection(db, 'messages'),
+            orderBy('createdAt', 'desc')
+        );
+
+        // Update collections
+        const unsubMessages = onSnapshot(q, (querySnapshot) => {
+            let newMessages = [];
+            querySnapshot.forEach((message) => {
+                newMessages.push({
+                    id: message.id,
+                    ...message.data(),
+                    createdAt: new Date(message.data().createdAt.toMillis()),
+                });
+            });
+            setMessages(newMessages);
+        });
+
+        // Clean up code
+        return () => {
+            if (unsubMessages) unsubMessages();
+        };
     }, []);
 
     const onSend = (newMessages) => {
-        setMessages((previousMessages) =>
-            GiftedChat.append(previousMessages, newMessages)
-        );
+        addDoc(collection(db, 'messages'), newMessages[0]);
     };
 
     const renderBubble = (props) => {
@@ -89,7 +100,8 @@ const Chat = ({ route, navigation }) => {
                 renderInputToolbar={renderInputToolBar}
                 renderSend={renderSend}
                 user={{
-                    _id: 1,
+                    _id: userID,
+                    name: name,
                 }}
             />
         </View>
