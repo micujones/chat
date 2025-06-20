@@ -16,7 +16,7 @@ import {
     orderBy,
     query,
 } from 'firebase/firestore';
-import { db } from './src/firebaseConfig';
+import { db } from '../src/firebaseConfig';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -37,7 +37,7 @@ const Chat = ({ route, navigation, isConnected }) => {
 
     const loadCachedMessages = async () => {
         const cachedMessages = (await AsyncStorage.getItem('messages')) || [];
-        setMessages(cachedMessages);
+        setMessages(JSON.parse(cachedMessages));
     };
 
     let unsubMessages;
@@ -71,7 +71,7 @@ const Chat = ({ route, navigation, isConnected }) => {
                 cacheMessages(newMessages);
                 setMessages(newMessages);
             });
-        } else loadCachedMessages();
+        } else if (isConnected === false) loadCachedMessages();
 
         // Clean up code
         return () => {
