@@ -1,3 +1,9 @@
+/* 
+    YOU MIGHT HAVE TO RUN
+    npm audit fix --force
+
+    BC OF ASYNC STORAGE
+*/
 import { StyleSheet, Text, View } from 'react-native';
 
 // Navigation
@@ -10,12 +16,38 @@ const Stack = createNativeStackNavigator();
 import Start from './components/Start';
 import Chat from './components/Chat';
 
+import { useEffect } from 'react';
+import { Alert } from 'react-native';
+
+// Connection
+import { useNetInfo } from '@react-native-community/netinfo';
+import { disableNetwork, enableNetwork } from 'firebase/firestore';
+import { db } from './src/firebaseConfig';
+
 const App = () => {
+    const connectionStatus = useNetInfo();
+    useEffect(() => {
+        if (connectionStatus.isConnected === false) {
+            Alert.alert('Connection lost.');
+            disableNetwork(db);
+        } else if (connectionStatus.isConnected === true) {
+            enableNetwork(db);
+        }
+    }, [connectionStatus.isConnected]);
+
     return (
         <NavigationContainer>
             <Stack.Navigator initialRouteName="Start">
                 <Stack.Screen name="Start" component={Start} />
-                <Stack.Screen name="Chat" component={Chat} />
+                <Stack.Screen name="Chat">
+                    {(props) => (
+                        <Chat
+                            db={db}
+                            isConnected={connectionStatus.isConnected}
+                            {...props}
+                        />
+                    )}
+                </Stack.Screen>
             </Stack.Navigator>
         </NavigationContainer>
     );
