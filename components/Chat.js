@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+    StyleSheet,
+    View,
+    KeyboardAvoidingView,
+    Platform,
+    Button,
+} from 'react-native';
 import {
     Bubble,
     GiftedChat,
@@ -19,26 +25,11 @@ import {
 import { db } from '../src/firebaseConfig';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomActions from './CustomActions';
 
 const Chat = ({ route, navigation, isConnected }) => {
     const { userID, name, bgColor } = route.params;
     const [messages, setMessages] = useState([]);
-
-    const cacheMessages = async (messagesToCache) => {
-        try {
-            await AsyncStorage.setItem(
-                'messages',
-                JSON.stringify(messagesToCache)
-            );
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
-
-    const loadCachedMessages = async () => {
-        const cachedMessages = (await AsyncStorage.getItem('messages')) || [];
-        setMessages(JSON.parse(cachedMessages));
-    };
 
     let unsubMessages;
     useEffect(() => {
@@ -83,6 +74,24 @@ const Chat = ({ route, navigation, isConnected }) => {
         addDoc(collection(db, 'messages'), newMessages[0]);
     };
 
+    // CACHE FUNCTIONS
+    const cacheMessages = async (messagesToCache) => {
+        try {
+            await AsyncStorage.setItem(
+                'messages',
+                JSON.stringify(messagesToCache)
+            );
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+    const loadCachedMessages = async () => {
+        const cachedMessages = (await AsyncStorage.getItem('messages')) || [];
+        setMessages(JSON.parse(cachedMessages));
+    };
+
+    // RENDERING FUNCTIONS
     const renderBubble = (props) => {
         return (
             <Bubble
@@ -119,18 +128,26 @@ const Chat = ({ route, navigation, isConnected }) => {
         );
     };
 
+    const renderCustomActions = (props) => {
+        return <CustomActions {...props} />;
+    };
+
     return (
         <View style={[styles.container, { backgroundColor: bgColor }]}>
             <KeyboardAvoidingView
                 // Makes space for the keyboard when user is typing
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             ></KeyboardAvoidingView>
+            {isConnected === false && (
+                <Button title="You are offline." color="#de0a26" />
+            )}
             <GiftedChat
                 messages={messages}
                 onSend={(messages) => onSend(messages)}
                 renderBubble={renderBubble}
                 renderInputToolbar={renderInputToolBar}
                 renderSend={renderSend}
+                renderActions={renderCustomActions}
                 user={{
                     _id: userID,
                     name: name,

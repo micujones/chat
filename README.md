@@ -1,6 +1,6 @@
 # Chat Application
 
-## Instillation
+## Instillation & Usage
 
 ### Install dependencies
 
@@ -19,10 +19,14 @@ _Source:_ [Create a development build on EAS](https://docs.expo.dev/develop/deve
 
 ## Usage
 
-Chat is a mobile application where users can enter a chat room and send messages, including audio, video, and location.
+Chat is a mobile application where users can enter a chat room and
+
+-   send messages, including images and location information.
+-   view cached messages when offline
 
 ## Tech Stack
 
+-   Node.js
 -   React Native
 -   Expo
 -   Firestore
