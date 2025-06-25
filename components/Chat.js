@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
-    StyleSheet,
+    Button,
     View,
+    Image,
     KeyboardAvoidingView,
     Platform,
-    Button,
+    StyleSheet,
 } from 'react-native';
 import {
     Bubble,
@@ -13,6 +14,8 @@ import {
     Send,
 } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/Ionicons';
+import CustomActions from './CustomActions';
+import MapView from 'react-native-maps';
 
 // Firebase
 import {
@@ -25,7 +28,6 @@ import {
 import { db } from '../src/firebaseConfig';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomActions from './CustomActions';
 
 const Chat = ({ route, navigation, isConnected }) => {
     const { userID, name, bgColor } = route.params;
@@ -70,8 +72,10 @@ const Chat = ({ route, navigation, isConnected }) => {
         };
     }, [isConnected]);
 
-    const onSend = (newMessages) => {
-        addDoc(collection(db, 'messages'), newMessages[0]);
+    const onSend = (newMessage) => {
+        console.log(newMessage);
+        if (newMessage.location) console.log('There is a location');
+        addDoc(collection(db, 'messages'), newMessage);
     };
 
     // CACHE FUNCTIONS
@@ -105,7 +109,7 @@ const Chat = ({ route, navigation, isConnected }) => {
     };
 
     const renderInputToolBar = (props) => {
-        if (isConnected) {
+        if (isConnected === true) {
             return (
                 <InputToolbar
                     {...props}
@@ -128,8 +132,34 @@ const Chat = ({ route, navigation, isConnected }) => {
         );
     };
 
-    const renderCustomActions = (props) => {
-        return <CustomActions {...props} />;
+    const renderActions = (props) => {
+        return <CustomActions onSend={onSend} {...props} />;
+    };
+
+    const renderCustomView = (props) => {
+        const { currentMessage } = props;
+
+        if (currentMessage.location) {
+            return (
+                <MapView
+                    style={{
+                        width: 150,
+                        height: 100,
+                        borderRadius: 13,
+                        margin: 3,
+                    }}
+                    region={{
+                        // latitude: 37.78825, // stock lat
+                        // longitude: -122.4324, // stock long
+                        latitude: currentMessage.location.latitude,
+                        longitude: currentMessage.location.longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                />
+            );
+        }
+        return null;
     };
 
     return (
@@ -143,11 +173,12 @@ const Chat = ({ route, navigation, isConnected }) => {
             )}
             <GiftedChat
                 messages={messages}
-                onSend={(messages) => onSend(messages)}
+                onSend={(messages) => onSend(messages[0])}
                 renderBubble={renderBubble}
                 renderInputToolbar={renderInputToolBar}
                 renderSend={renderSend}
-                renderActions={renderCustomActions}
+                renderActions={renderActions}
+                renderCustomView={renderCustomView}
                 user={{
                     _id: userID,
                     name: name,

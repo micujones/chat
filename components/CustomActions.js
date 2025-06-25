@@ -11,13 +11,14 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
-import { useActionSheet } from '@expo/react-native-action-sheet';
+import { Actions } from 'react-native-gifted-chat';
+// import { useActionSheet } from '@expo/react-native-action-sheet';
 
-const CustomActions = ({ wrapperStyle, iconTextStyle }) => {
+const CustomActions = ({ onSend }) => {
     const [image, setImage] = useState(null);
     const [location, setLocation] = useState(null);
 
-    const { showActionSheetWithOptions } = useActionSheet();
+    // const { showActionSheetWithOptions } = useActionSheet();
 
     const pickImage = async () => {
         let permissions =
@@ -27,9 +28,17 @@ const CustomActions = ({ wrapperStyle, iconTextStyle }) => {
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ['images', 'livePhotos', 'videos'],
             });
-            if (!result.canceled) setImage(result.assets[0]);
-            else setImage(null);
-        }
+
+            if (!result.canceled) {
+                onSend({
+                    image: {
+                        uri: result.assets[0].uri,
+                    },
+                });
+            } else Alert.alert('Something went wrong while fetching image.');
+            // setImage(result.assets[0]);
+            // else setImage(null);
+        } else Alert.alert("Permissions to access library aren't granted.");
     };
 
     const takePhoto = async () => {
@@ -46,48 +55,79 @@ const CustomActions = ({ wrapperStyle, iconTextStyle }) => {
         let permissions = await Location.requestForegroundPermissionsAsync();
 
         if (permissions?.granted) {
-            const result = await Location.getCurrentPositionAsync({});
-            setLocation(result);
+            const location = await Location.getCurrentPositionAsync({});
+            if (location) {
+                onSend({
+                    location: {
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude,
+                    },
+                });
+                console.log('Location: ', location);
+            } else Alert.alert('Something went wrong while fetching location.');
         } else {
             Alert.alert("Permissions to read location aren't granted.");
         }
     };
 
-    const onActionPress = () => {
-        const options = [
-            'Choose from library',
-            'Take a picture',
-            'Send location',
-            'Cancel',
-        ];
-        const cancelButtonIndex = options.length - 1;
+    // const onActionPress = () => {
+    //     const options = [
+    //         'Choose from library',
+    //         'Take a picture',
+    //         'Send location',
+    //         'Cancel',
+    //     ];
+    //     const cancelButtonIndex = options.length - 1;
 
-        showActionSheetWithOptions(
-            {
-                options,
-                cancelButtonIndex,
-            },
-            async (buttonIndex) => {
-                switch (buttonIndex) {
-                    case 0:
-                        console.log('user wants to pick an image');
-                        return;
-                    case 1:
-                        console.log('user wants to take a photo');
-                        return;
-                    case 2:
-                        console.log('user wants to get their location');
-                    default:
-                }
-            }
-        );
+    //     showActionSheetWithOptions(
+    //         {
+    //             options,
+    //             cancelButtonIndex,
+    //         },
+    //         async (buttonIndex) => {
+    //             switch (buttonIndex) {
+    //                 case 0:
+    //                     console.log('user wants to pick an image');
+    //                     return;
+    //                 case 1:
+    //                     console.log('user wants to take a photo');
+    //                     return;
+    //                 case 2:
+    //                     console.log('user wants to get their location');
+    //                 default:
+    //             }
+    //         }
+    //     );
+    // };
+
+    const options = {
+        'Choose from library': () => pickImage(),
+        'Take a photo': () => takePhoto(),
+        'Send location': async () => getLocation(),
+        Cancel: () => {},
     };
+
     return (
-        <TouchableOpacity style={styles.container} onPress={onActionPress}>
-            <View style={[styles.wrapper, wrapperStyle]}>
-                <Text style={[styles.iconText, iconTextStyle]}>+</Text>
-            </View>
-        </TouchableOpacity>
+        <Actions
+            containerStyle={{
+                width: 44,
+                height: 44,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginLeft: 4,
+                marginRight: 4,
+                marginBottom: 0,
+            }}
+            icon={() => (
+                <Image
+                    style={{ width: 24, height: 24 }}
+                    source={require('../assets/icon-add.png')}
+                    alt="Plus icon created by dmitri13 - Flaticon"
+                />
+            )}
+            options={options}
+            optionTintColor="#222B45"
+        />
     );
 };
 
