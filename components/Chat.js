@@ -6,6 +6,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
+    TouchableOpacity,
 } from 'react-native';
 import {
     Bubble,
@@ -15,7 +16,7 @@ import {
 } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomActions from './CustomActions';
-import MapView from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 // Firebase
 import {
@@ -32,6 +33,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Chat = ({ route, navigation, isConnected }) => {
     const { userID, name, bgColor } = route.params;
     const [messages, setMessages] = useState([]);
+
+    const user = { _id: userID, name: name };
 
     let unsubMessages;
     useEffect(() => {
@@ -72,10 +75,8 @@ const Chat = ({ route, navigation, isConnected }) => {
         };
     }, [isConnected]);
 
-    const onSend = (newMessage) => {
-        console.log(newMessage);
-        if (newMessage.location) console.log('There is a location');
-        addDoc(collection(db, 'messages'), newMessage);
+    const onSend = (props) => {
+        addDoc(collection(db, 'messages'), props[0]); // Props are an array
     };
 
     // CACHE FUNCTIONS
@@ -133,30 +134,38 @@ const Chat = ({ route, navigation, isConnected }) => {
     };
 
     const renderActions = (props) => {
-        return <CustomActions onSend={onSend} {...props} />;
+        return <CustomActions {...props} />;
     };
 
     const renderCustomView = (props) => {
-        const { currentMessage } = props;
-
-        if (currentMessage.location) {
+        if (props.location) {
             return (
                 <MapView
+                    provider={PROVIDER_GOOGLE}
+                    // style={{ flex: 1 }}
                     style={{
                         width: 150,
                         height: 100,
                         borderRadius: 13,
                         margin: 3,
+                        overflow: 'hidden',
                     }}
                     region={{
                         // latitude: 37.78825, // stock lat
                         // longitude: -122.4324, // stock long
-                        latitude: currentMessage.location.latitude,
-                        longitude: currentMessage.location.longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
+                        latitude: props.location.latitude,
+                        longitude: props.location.longitude,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01,
                     }}
-                />
+                    scrollEnabled={false}
+                    zoomEnabled={false}
+                >
+                    <MapView.Marker
+                        coordinate={props.location}
+                        title="Location"
+                    />
+                </MapView>
             );
         }
         return null;
@@ -173,16 +182,14 @@ const Chat = ({ route, navigation, isConnected }) => {
             )}
             <GiftedChat
                 messages={messages}
-                onSend={(messages) => onSend(messages[0])}
+                // onSend={(messages) => onSend(messages[0])}
+                onSend={onSend}
                 renderBubble={renderBubble}
                 renderInputToolbar={renderInputToolBar}
                 renderSend={renderSend}
                 renderActions={renderActions}
                 renderCustomView={renderCustomView}
-                user={{
-                    _id: userID,
-                    name: name,
-                }}
+                user={user}
             />
         </View>
     );

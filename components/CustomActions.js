@@ -9,14 +9,12 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { Actions } from 'react-native-gifted-chat';
 // import { useActionSheet } from '@expo/react-native-action-sheet';
 
 const CustomActions = ({ onSend }) => {
     const [image, setImage] = useState(null);
-    const [location, setLocation] = useState(null);
 
     // const { showActionSheetWithOptions } = useActionSheet();
 
@@ -63,7 +61,6 @@ const CustomActions = ({ onSend }) => {
                         longitude: location.coords.longitude,
                     },
                 });
-                console.log('Location: ', location);
             } else Alert.alert('Something went wrong while fetching location.');
         } else {
             Alert.alert("Permissions to read location aren't granted.");
