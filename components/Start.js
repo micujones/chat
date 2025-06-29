@@ -63,10 +63,9 @@ const Start = ({ navigation }) => {
                         placeholder="Your Name"
                     />
                     <View style={styles.chooseBackgroundColor}>
-                        <TextInput
-                            style={[styles.normalText, { opacity: 100 }]}
-                            value="Choose Background Color:"
-                        />
+                        <Text style={styles.normalText}>
+                            Choose Background Color:
+                        </Text>
                         {/* Buttons for selecting background colors */}
                         <View style={{ flexDirection: 'row', gap: 12 }}>
                             <TouchableOpacity

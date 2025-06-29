@@ -21,22 +21,15 @@ const CustomActions = ({ user, onSend }) => {
     const messageIdGenerator = () =>
         (Math.random() + 1).toString(36).substring(7);
 
-    // Add message data for document
-    const initMessageData = () => {
-        setMessageData({
-            _id: messageIdGenerator(),
-            user: user,
-            createdAt: new Date(),
-        });
-    };
-
     // Send message with customView object and add'l message data
     const sendMessageData = (customViewObject) => {
-        initMessageData();
         onSend([
             {
-                ...messageData,
                 ...customViewObject,
+                // Add message data for document
+                _id: messageIdGenerator(),
+                user: user,
+                createdAt: new Date(),
             },
         ]);
     };

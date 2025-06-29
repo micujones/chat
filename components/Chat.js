@@ -51,7 +51,6 @@ const Chat = ({ route, navigation, isConnected }) => {
 
             const q = query(
                 collection(db, 'messages'),
-                // where("uid", "==", userID),
                 orderBy('createdAt', 'desc')
             );
 
@@ -79,8 +78,7 @@ const Chat = ({ route, navigation, isConnected }) => {
     }, [isConnected]);
 
     const onSend = (props) => {
-        if (props[0].location) console.log('Location sent.', props);
-        addDoc(collection(db, 'messages'), props[0]); // Props are an array
+        addDoc(collection(db, 'messages'), props[0]);
     };
 
     // CACHE FUNCTIONS
@@ -144,12 +142,11 @@ const Chat = ({ route, navigation, isConnected }) => {
     const renderCustomView = (props) => {
         const { currentMessage } = props;
 
-        console.log(currentMessage);
         if (currentMessage.location) {
             return (
                 <View style={[styles.customViewContainer, styles.mapContainer]}>
                     <MapView
-                        provider={PROVIDER_DEFAULT}
+                        provider={PROVIDER_GOOGLE}
                         style={{ flex: 1 }}
                         region={{
                             latitude: currentMessage.location.latitude,
