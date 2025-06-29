@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import {
     Button,
     View,
-    Image,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
-    TouchableOpacity,
 } from 'react-native';
 import {
     Bubble,
@@ -76,6 +74,7 @@ const Chat = ({ route, navigation, isConnected }) => {
     }, [isConnected]);
 
     const onSend = (props) => {
+        if (props.location) console.log('Location sent.', props);
         addDoc(collection(db, 'messages'), props[0]); // Props are an array
     };
 
@@ -134,40 +133,60 @@ const Chat = ({ route, navigation, isConnected }) => {
     };
 
     const renderActions = (props) => {
-        return <CustomActions {...props} />;
+        return <CustomActions user={user} onSend={onSend} {...props} />;
     };
 
     const renderCustomView = (props) => {
-        if (props.location) {
+        const { currentMessage } = props;
+
+        if (currentMessage.location) {
             return (
-                <MapView
-                    provider={PROVIDER_GOOGLE}
-                    // style={{ flex: 1 }}
-                    style={{
-                        width: 150,
-                        height: 100,
-                        borderRadius: 13,
-                        margin: 3,
-                        overflow: 'hidden',
-                    }}
-                    region={{
-                        // latitude: 37.78825, // stock lat
-                        // longitude: -122.4324, // stock long
-                        latitude: props.location.latitude,
-                        longitude: props.location.longitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                    }}
-                    scrollEnabled={false}
-                    zoomEnabled={false}
-                >
-                    <MapView.Marker
-                        coordinate={props.location}
-                        title="Location"
+                <View style={styles.mapContainer}>
+                    <MapView
+                        provider={PROVIDER_GOOGLE}
+                        style={{ flex: 1 }}
+                        region={{
+                            latitude: currentMessage.location.latitude,
+                            longitude: currentMessage.location.longitude,
+                            latitudeDelta: 0.0922,
+                            longitudeDelta: 0.0421,
+                        }}
+                        scrollEnabled={false}
+                        zoomEnabled={false}
                     />
-                </MapView>
+                </View>
             );
         }
+        // if (currentMessage.location) {
+        //     return (
+        //         <MapView
+        //             provider={PROVIDER_GOOGLE}
+        //             // style={{ flex: 1 }}
+        //             style={{
+        //                 width: 150,
+        //                 height: 100,
+        //                 borderRadius: 13,
+        //                 margin: 3,
+        //                 overflow: 'hidden',
+        //             }}
+        //             region={{
+        //                 // latitude: 37.78825, // stock lat
+        //                 // longitude: -122.4324, // stock long
+        //                 latitude: currentMessage.location.latitude,
+        //                 longitude: currentMessage.location.longitude,
+        //                 latitudeDelta: 0.01,
+        //                 longitudeDelta: 0.01,
+        //             }}
+        //             scrollEnabled={false}
+        //             zoomEnabled={false}
+        //         >
+        //             <MapView.Marker
+        //                 coordinate={currentMessage.location}
+        //                 title="Location"
+        //             />
+        //         </MapView>
+        //     );
+        // }
         return null;
     };
 
@@ -198,6 +217,13 @@ const Chat = ({ route, navigation, isConnected }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    mapContainer: {
+        width: 150,
+        height: 100,
+        borderRadius: 13,
+        margin: 3,
+        overflow: 'hidden',
     },
 });
 

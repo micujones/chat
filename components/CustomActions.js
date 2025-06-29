@@ -13,8 +13,12 @@ import * as Location from 'expo-location';
 import { Actions } from 'react-native-gifted-chat';
 // import { useActionSheet } from '@expo/react-native-action-sheet';
 
-const CustomActions = ({ onSend }) => {
+const CustomActions = ({ user, onSend }) => {
     const [image, setImage] = useState(null);
+
+    // "random" function from here: https://stackoverflow.com/a/8084248/3452513
+    const messageIdGenerator = () =>
+        (Math.random() + 1).toString(36).substring(7);
 
     // const { showActionSheetWithOptions } = useActionSheet();
 
@@ -55,12 +59,17 @@ const CustomActions = ({ onSend }) => {
         if (permissions?.granted) {
             const location = await Location.getCurrentPositionAsync({});
             if (location) {
-                onSend({
-                    location: {
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
+                onSend([
+                    {
+                        _id: messageIdGenerator(),
+                        user: user,
+                        createdAt: new Date(),
+                        location: {
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                        },
                     },
-                });
+                ]);
             } else Alert.alert('Something went wrong while fetching location.');
         } else {
             Alert.alert("Permissions to read location aren't granted.");
