@@ -1,26 +1,61 @@
 import React, { useState } from 'react';
-import {
-    Button,
-    StyleSheet,
-    View,
-    Image,
-    Alert,
-    TouchableOpacity,
-} from 'react-native';
+import { Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
 import { Actions } from 'react-native-gifted-chat';
-// import { useActionSheet } from '@expo/react-native-action-sheet';
+
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { storage } from '../src/firebaseConfig';
 
 const CustomActions = ({ user, onSend }) => {
-    const [image, setImage] = useState(null);
+    const [messageData, setMessageData] = useState({});
+
+    const generateReference = (uri) => {
+        const timeStamp = new Date().getTime();
+        const imageName = uri.split('/')[uri.split('/').length - 1];
+        return `${user._id}-${timeStamp}-${imageName}`;
+    };
 
     // "random" function from here: https://stackoverflow.com/a/8084248/3452513
     const messageIdGenerator = () =>
         (Math.random() + 1).toString(36).substring(7);
 
-    // const { showActionSheetWithOptions } = useActionSheet();
+    // Add message data for document
+    const initMessageData = () => {
+        setMessageData({
+            _id: messageIdGenerator(),
+            user: user,
+            createdAt: new Date(),
+        });
+    };
+
+    // Send message with customView object and add'l message data
+    const sendMessageData = (customViewObject) => {
+        initMessageData();
+        onSend([
+            {
+                ...messageData,
+                ...customViewObject,
+            },
+        ]);
+    };
+
+    // Uploading to Firebase Storage
+    const uploadAndSendImage = async (imageURI) => {
+        const uniqueRefString = generateReference(imageURI);
+        const response = await fetch(imageURI);
+        const blob = await response.blob();
+        const newUploadRef = ref(storage, uniqueRefString);
+        uploadBytes(newUploadRef, blob).then(async (snapshot) => {
+            console.log('Image file has been uploaded.');
+            // Sending message with Gifted Chat
+            const imageURL = await getDownloadURL(snapshot.ref);
+            sendMessageData({
+                image: imageURL,
+            });
+        });
+    };
 
     const pickImage = async () => {
         let permissions =
@@ -31,15 +66,9 @@ const CustomActions = ({ user, onSend }) => {
                 mediaTypes: ['images', 'livePhotos', 'videos'],
             });
 
-            if (!result.canceled) {
-                onSend({
-                    image: {
-                        uri: result.assets[0].uri,
-                    },
-                });
-            } else Alert.alert('Something went wrong while fetching image.');
-            // setImage(result.assets[0]);
-            // else setImage(null);
+            if (!result.canceled)
+                await uploadAndSendImage(result.assets[0].uri);
+            else Alert.alert('Something went wrong while fetching image.');
         } else Alert.alert("Permissions to access library aren't granted.");
     };
 
@@ -48,9 +77,10 @@ const CustomActions = ({ user, onSend }) => {
 
         if (permissions?.granted) {
             const result = await ImagePicker.launchCameraAsync();
-            if (!result.canceled) setImage(result.assets[0]);
-            else setImage(null);
-        }
+            if (!result.canceled)
+                await uploadAndSendImage(result.assets[0].uri);
+            else Alert.alert('Something went wrong while taking photo.');
+        } else Alert.alert("Permissions to access camera aren't granted.");
     };
 
     const getLocation = async () => {
@@ -59,52 +89,17 @@ const CustomActions = ({ user, onSend }) => {
         if (permissions?.granted) {
             const location = await Location.getCurrentPositionAsync({});
             if (location) {
-                onSend([
-                    {
-                        _id: messageIdGenerator(),
-                        user: user,
-                        createdAt: new Date(),
-                        location: {
-                            latitude: location.coords.latitude,
-                            longitude: location.coords.longitude,
-                        },
+                sendMessageData({
+                    location: {
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude,
                     },
-                ]);
+                });
             } else Alert.alert('Something went wrong while fetching location.');
         } else {
             Alert.alert("Permissions to read location aren't granted.");
         }
     };
-
-    // const onActionPress = () => {
-    //     const options = [
-    //         'Choose from library',
-    //         'Take a picture',
-    //         'Send location',
-    //         'Cancel',
-    //     ];
-    //     const cancelButtonIndex = options.length - 1;
-
-    //     showActionSheetWithOptions(
-    //         {
-    //             options,
-    //             cancelButtonIndex,
-    //         },
-    //         async (buttonIndex) => {
-    //             switch (buttonIndex) {
-    //                 case 0:
-    //                     console.log('user wants to pick an image');
-    //                     return;
-    //                 case 1:
-    //                     console.log('user wants to take a photo');
-    //                     return;
-    //                 case 2:
-    //                     console.log('user wants to get their location');
-    //                 default:
-    //             }
-    //         }
-    //     );
-    // };
 
     const options = {
         'Choose from library': () => pickImage(),
@@ -136,27 +131,5 @@ const CustomActions = ({ user, onSend }) => {
         />
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        width: 26,
-        height: 26,
-        marginLeft: 10,
-        marginBottom: 10,
-    },
-    wrapper: {
-        borderRadius: 13,
-        borderColor: '#b2b2b2',
-        borderWidth: 2,
-        flex: 1,
-    },
-    iconText: {
-        color: '#b2b2b2',
-        fontWeight: 'bold',
-        fontSize: 10,
-        backgroundColor: 'transparent',
-        textAlign: 'center',
-    },
-});
 
 export default CustomActions;

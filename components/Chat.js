@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
     Button,
-    View,
+    Image,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
+    View,
 } from 'react-native';
 import {
     Bubble,
@@ -14,7 +15,11 @@ import {
 } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomActions from './CustomActions';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, {
+    Marker,
+    PROVIDER_DEFAULT,
+    PROVIDER_GOOGLE,
+} from 'react-native-maps';
 
 // Firebase
 import {
@@ -74,7 +79,7 @@ const Chat = ({ route, navigation, isConnected }) => {
     }, [isConnected]);
 
     const onSend = (props) => {
-        if (props.location) console.log('Location sent.', props);
+        if (props[0].location) console.log('Location sent.', props);
         addDoc(collection(db, 'messages'), props[0]); // Props are an array
     };
 
@@ -101,7 +106,7 @@ const Chat = ({ route, navigation, isConnected }) => {
             <Bubble
                 {...props}
                 wrapperStyle={{
-                    right: { backgroundColor: '#000' },
+                    right: { backgroundColor: '#0d71fe' },
                     left: { backgroundColor: '#fff' },
                 }}
             />
@@ -139,11 +144,12 @@ const Chat = ({ route, navigation, isConnected }) => {
     const renderCustomView = (props) => {
         const { currentMessage } = props;
 
+        console.log(currentMessage);
         if (currentMessage.location) {
             return (
-                <View style={styles.mapContainer}>
+                <View style={[styles.customViewContainer, styles.mapContainer]}>
                     <MapView
-                        provider={PROVIDER_GOOGLE}
+                        provider={PROVIDER_DEFAULT}
                         style={{ flex: 1 }}
                         region={{
                             latitude: currentMessage.location.latitude,
@@ -153,40 +159,25 @@ const Chat = ({ route, navigation, isConnected }) => {
                         }}
                         scrollEnabled={false}
                         zoomEnabled={false}
-                    />
+                    >
+                        <Marker
+                            coordinate={currentMessage.location}
+                            title="Location"
+                        />
+                    </MapView>
                 </View>
             );
         }
-        // if (currentMessage.location) {
-        //     return (
-        //         <MapView
-        //             provider={PROVIDER_GOOGLE}
-        //             // style={{ flex: 1 }}
-        //             style={{
-        //                 width: 150,
-        //                 height: 100,
-        //                 borderRadius: 13,
-        //                 margin: 3,
-        //                 overflow: 'hidden',
-        //             }}
-        //             region={{
-        //                 // latitude: 37.78825, // stock lat
-        //                 // longitude: -122.4324, // stock long
-        //                 latitude: currentMessage.location.latitude,
-        //                 longitude: currentMessage.location.longitude,
-        //                 latitudeDelta: 0.01,
-        //                 longitudeDelta: 0.01,
-        //             }}
-        //             scrollEnabled={false}
-        //             zoomEnabled={false}
-        //         >
-        //             <MapView.Marker
-        //                 coordinate={currentMessage.location}
-        //                 title="Location"
-        //             />
-        //         </MapView>
-        //     );
-        // }
+
+        if (currentMessage.image) {
+            return (
+                <View
+                    style={[styles.customViewContainer, styles.imageContainer]}
+                >
+                    <Image src={currentMessage.image} />
+                </View>
+            );
+        }
         return null;
     };
 
@@ -201,7 +192,6 @@ const Chat = ({ route, navigation, isConnected }) => {
             )}
             <GiftedChat
                 messages={messages}
-                // onSend={(messages) => onSend(messages[0])}
                 onSend={onSend}
                 renderBubble={renderBubble}
                 renderInputToolbar={renderInputToolBar}
@@ -218,12 +208,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    mapContainer: {
+    customViewContainer: {
         width: 150,
-        height: 100,
         borderRadius: 13,
         margin: 3,
         overflow: 'hidden',
+    },
+    mapContainer: {
+        height: 100,
+    },
+    imageContainer: {
+        height: 'auto',
     },
 });
 

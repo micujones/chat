@@ -45,7 +45,6 @@ const App = () => {
                     <Stack.Screen name="Chat">
                         {(props) => (
                             <Chat
-                                db={db}
                                 isConnected={connectionStatus.isConnected}
                                 {...props}
                             />
