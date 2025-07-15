@@ -88,15 +88,16 @@ npx expo start
 ### Home Screen
 
 Enter a name and choose a local background color:<br><br>
-![Chat application home screen](/screenshots/screenshot_home-screen.png)
+<img src="screenshots/screenshot_home-screen.png" width="300px" alt="Chat application home screen">
 
 ### Chat Screen
 
 Send messages, images, and location data in chat room:<br><br>
-![Chat application chat screen](/screenshots/screenshot_chat-screen.png) ![Chat application chat screen with action sheet](/screenshots/screenshot_chat-screen_actions.png)
+<img src="screenshots/screenshot_chat-screen.png" width="300px" alt="Chat application chat screen">
+<img src="screenshots/screenshot_chat-screen_actions.png" width="300px" alt="Chat application chat screen with action sheet">
 
 Chat room loads cached messages when offline:<br><br>
-![Chat application chat screen when offline](/screenshots/screenshot_chat-screen_offline.png)
+<img src="screenshots/screenshot_chat-screen_offline.png" width="300px" alt="Chat application chat screen when offline">
 
 ## Tasks
 
