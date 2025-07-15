@@ -9,7 +9,15 @@ A chat app for mobile devices using React Native. The app provides users with a 
 -   Provides two additional communication features: sending images and location data
 -   Data gets stored online and offline
 
-## Instillation
+## Tools
+
+-   Node.js
+-   React Native
+-   Expo
+-   Firestore
+-   Gifted Chat
+
+## Installation
 
 ### Install dependencies
 
@@ -29,7 +37,7 @@ Android:
 npx expo run:android
 ```
 
-iOS:
+~~iOS~~ (under construction) :
 
 ```sh
 npx expo run:ios
@@ -43,7 +51,7 @@ _**Note:** Rerun these commands after additional packages are installed._
 npx expo start
 ```
 
-## Usage
+## Environment
 
 ### Firebase
 
@@ -69,10 +77,28 @@ In `app.json`, `ios.config.googleMapsApiKey` and `android.config.googleMaps.apiK
 
 Follow the instructions [instructions provided](https://docs.expo.dev/versions/latest/sdk/map-view/) by Expo.
 
-## Tools
+## Usage
 
--   Node.js
--   React Native
--   Expo
--   Firestore
--   Gifted Chat
+### Start application
+
+```sh
+npx expo start
+```
+
+### Home Screen
+
+Enter a name and choose a local background color:<br><br>
+![Chat application home screen](/screenshots/screenshot_home-screen.png)
+
+### Chat Screen
+
+Send messages, images, and location data in chat room:<br><br>
+![Chat application chat screen](/screenshots/screenshot_chat-screen.png) ![Chat application chat screen with action sheet](/screenshots/screenshot_chat-screen_actions.png)
+
+Chat room loads cached messages when offline:<br><br>
+![Chat application chat screen when offline](/screenshots/screenshot_chat-screen_offline.png)
+
+## Tasks
+
+-   [ ] Configure ios
+-   [ ] Add security with `.env`
