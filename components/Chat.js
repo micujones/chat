@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+    Button,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    View,
+} from 'react-native';
 import {
     Bubble,
     GiftedChat,
@@ -7,6 +14,12 @@ import {
     Send,
 } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/Ionicons';
+import CustomActions from './CustomActions';
+import MapView, {
+    Marker,
+    PROVIDER_DEFAULT,
+    PROVIDER_GOOGLE,
+} from 'react-native-maps';
 
 // Firebase
 import {
@@ -24,21 +37,7 @@ const Chat = ({ route, navigation, isConnected }) => {
     const { userID, name, bgColor } = route.params;
     const [messages, setMessages] = useState([]);
 
-    const cacheMessages = async (messagesToCache) => {
-        try {
-            await AsyncStorage.setItem(
-                'messages',
-                JSON.stringify(messagesToCache)
-            );
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
-
-    const loadCachedMessages = async () => {
-        const cachedMessages = (await AsyncStorage.getItem('messages')) || [];
-        setMessages(JSON.parse(cachedMessages));
-    };
+    const user = { _id: userID, name: name };
 
     let unsubMessages;
     useEffect(() => {
@@ -52,7 +51,6 @@ const Chat = ({ route, navigation, isConnected }) => {
 
             const q = query(
                 collection(db, 'messages'),
-                // where("uid", "==", userID),
                 orderBy('createdAt', 'desc')
             );
 
@@ -79,16 +77,34 @@ const Chat = ({ route, navigation, isConnected }) => {
         };
     }, [isConnected]);
 
-    const onSend = (newMessages) => {
-        addDoc(collection(db, 'messages'), newMessages[0]);
+    const onSend = (props) => {
+        addDoc(collection(db, 'messages'), props[0]);
     };
 
+    // CACHE FUNCTIONS
+    const cacheMessages = async (messagesToCache) => {
+        try {
+            await AsyncStorage.setItem(
+                'messages',
+                JSON.stringify(messagesToCache)
+            );
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+    const loadCachedMessages = async () => {
+        const cachedMessages = (await AsyncStorage.getItem('messages')) || [];
+        setMessages(JSON.parse(cachedMessages));
+    };
+
+    // RENDERING FUNCTIONS
     const renderBubble = (props) => {
         return (
             <Bubble
                 {...props}
                 wrapperStyle={{
-                    right: { backgroundColor: '#000' },
+                    right: { backgroundColor: '#0d71fe' },
                     left: { backgroundColor: '#fff' },
                 }}
             />
@@ -96,7 +112,7 @@ const Chat = ({ route, navigation, isConnected }) => {
     };
 
     const renderInputToolBar = (props) => {
-        if (isConnected) {
+        if (isConnected === true) {
             return (
                 <InputToolbar
                     {...props}
@@ -119,22 +135,67 @@ const Chat = ({ route, navigation, isConnected }) => {
         );
     };
 
+    const renderActions = (props) => {
+        return <CustomActions user={user} onSend={onSend} {...props} />;
+    };
+
+    const renderCustomView = (props) => {
+        const { currentMessage } = props;
+
+        if (currentMessage.location) {
+            return (
+                <View style={[styles.customViewContainer, styles.mapContainer]}>
+                    <MapView
+                        provider={PROVIDER_GOOGLE}
+                        style={{ flex: 1 }}
+                        region={{
+                            latitude: currentMessage.location.latitude,
+                            longitude: currentMessage.location.longitude,
+                            latitudeDelta: 0.0922,
+                            longitudeDelta: 0.0421,
+                        }}
+                        scrollEnabled={false}
+                        zoomEnabled={false}
+                    >
+                        <Marker
+                            coordinate={currentMessage.location}
+                            title="Location"
+                        />
+                    </MapView>
+                </View>
+            );
+        }
+
+        if (currentMessage.image) {
+            return (
+                <View
+                    style={[styles.customViewContainer, styles.imageContainer]}
+                >
+                    <Image src={currentMessage.image} />
+                </View>
+            );
+        }
+        return null;
+    };
+
     return (
         <View style={[styles.container, { backgroundColor: bgColor }]}>
             <KeyboardAvoidingView
                 // Makes space for the keyboard when user is typing
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             ></KeyboardAvoidingView>
+            {isConnected === false && (
+                <Button title="You are offline." color="#de0a26" />
+            )}
             <GiftedChat
                 messages={messages}
-                onSend={(messages) => onSend(messages)}
+                onSend={onSend}
                 renderBubble={renderBubble}
                 renderInputToolbar={renderInputToolBar}
                 renderSend={renderSend}
-                user={{
-                    _id: userID,
-                    name: name,
-                }}
+                renderActions={renderActions}
+                renderCustomView={renderCustomView}
+                user={user}
             />
         </View>
     );
@@ -143,6 +204,18 @@ const Chat = ({ route, navigation, isConnected }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    customViewContainer: {
+        width: 150,
+        borderRadius: 13,
+        margin: 3,
+        overflow: 'hidden',
+    },
+    mapContainer: {
+        height: 100,
+    },
+    imageContainer: {
+        height: 'auto',
     },
 });
 

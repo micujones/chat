@@ -6,6 +6,8 @@
 */
 import { StyleSheet, Text, View } from 'react-native';
 
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+
 // Navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -36,20 +38,21 @@ const App = () => {
     }, [connectionStatus.isConnected]);
 
     return (
-        <NavigationContainer>
-            <Stack.Navigator initialRouteName="Start">
-                <Stack.Screen name="Start" component={Start} />
-                <Stack.Screen name="Chat">
-                    {(props) => (
-                        <Chat
-                            db={db}
-                            isConnected={connectionStatus.isConnected}
-                            {...props}
-                        />
-                    )}
-                </Stack.Screen>
-            </Stack.Navigator>
-        </NavigationContainer>
+        <ActionSheetProvider>
+            <NavigationContainer>
+                <Stack.Navigator initialRouteName="Start">
+                    <Stack.Screen name="Start" component={Start} />
+                    <Stack.Screen name="Chat">
+                        {(props) => (
+                            <Chat
+                                isConnected={connectionStatus.isConnected}
+                                {...props}
+                            />
+                        )}
+                    </Stack.Screen>
+                </Stack.Navigator>
+            </NavigationContainer>
+        </ActionSheetProvider>
     );
 };
 
