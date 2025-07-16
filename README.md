@@ -19,7 +19,15 @@ A chat app for mobile devices using React Native. The app provides users with a 
 
 ## Installation
 
-### Install dependencies
+### Install application
+
+Clone repo:
+
+```sh
+gh repo clone micujones/chat
+```
+
+Install NPM packages:
 
 ```sh
 npm install
